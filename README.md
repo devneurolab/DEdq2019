@@ -10,4 +10,4 @@ of the intestine of the sea cucumber _Holothuria glaberrima_.
 
 Tissue and RNA extraction was done by **David Quispe (2019)**.
 
-You can access both the [html] and [Rmd] document.
+You can access both the [html](DESeq_dq2019.html) and [Rmd](DESeq_dq2019.Rmd) document.
