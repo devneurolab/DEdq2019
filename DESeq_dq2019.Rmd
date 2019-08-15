@@ -1,30 +1,28 @@
 ---
-title: "Sea Cucumber Differential Gene Expression Data of Intestine Regenerative Tissue"
-author: "Joshua Medina"
-date: "7/16/2019"
 output: html_document
 ---
+
+###Sea Cucumber Differential Gene Expression Data of Intestine Regenrative Tissue
+**Joshua Medina** | 7/16/2019
 
 ```{r, echo=FALSE, message=FALSE, cache=FALSE}
 library(BiocStyle)
 knitr::opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
-set.seed(651)
 ```
 
-##Overview
+###Overview
 
-
-
+The sea cucumber _Holothuria glaberrima_ has great regenerative capability after internal organs evisceration. In this case, we are analyzing data from intestine regenerative tissue of 1 and 3 days post evisceration (1- and 3DPE) in order to further understand the genes that are involved in the early stages of regeneration.
 
 ***
 
-##Process
+####Process
 
 Set the directory to work in and load required libraries.
 
 ```{r}
 
-setwd("~/git/DEdqData2019/")
+setwd("~/git/DEdq2019/")
 
 suppressMessages(library(DESeq2))
 suppressMessages(library(gplots))
@@ -34,22 +32,22 @@ suppressMessages(library(EnhancedVolcano))
 ```
 
 
-Loading the data.
+**Loading the data.**
 
-The variable *names* will contain the genenames or in this case the ID given by the assembler for all the reads in the count data to be used.
-The variable *ddata* contains a csv file indicating the files to be used and to which group they correspond (i.e experimental or control). In our case this is going to consist of three different levels normal, 1 day post-evisceration (1DPE), and 3 days post-evisceration (3DPE).
+* The variable *names* will contain the genenames or in this case the ID given by the assembler for all the reads in the count data to be used.
+* The variable *ddata* contains a csv file indicating the files to be used and to which group they correspond (i.e experimental or control). In our case this is going to consist of three different levels normal, 1 day post-evisceration (1DPE), and 3 days post-evisceration (3DPE).
 
 ```{r}
 
-names <- read.table("genenames.txt", header=FALSE, row.names = 1)
-ddata <- read.csv("ddata.csv", header = TRUE)
+names <- read.table("data/genenames.txt", header=FALSE, row.names = 1)
+ddata <- read.csv("data/ddata.csv", header = TRUE)
 
 ```
 
 Generating the data set with respect to the counts.
 
 ```{r}
-ddsSTAR <- DESeqDataSetFromHTSeqCount(sampleTable = ddata, directory = "countsmay2019", design = ~ condition)
+ddsSTAR <- DESeqDataSetFromHTSeqCount(sampleTable = ddata, directory = "data/countsmay2019", design = ~ condition)
 
 colData(ddsSTAR)$condition <- factor(colData(ddsSTAR)$condition, levels=levels(ddata$condition))
 
@@ -58,7 +56,7 @@ colData(ddsSTAR)$condition <- factor(colData(ddsSTAR)$condition, levels=levels(d
 
 ```
 
-Estimating the size factors using "median ratio method", dispersions (gene-wise, mean-dispersion relationship, final dispersion estimates). Generating the counts table with _counts_ function.
+Estimating the size factors using _"median ratio method"_, dispersions (gene-wise, mean-dispersion relationship, final dispersion estimates). Generating the counts table with _counts_ function.
 
 ```{r}
 
@@ -76,22 +74,22 @@ Restults of contrasts between conditions (3DPE vs Normal; 1DPE vs Normal). __Not
 res_3DPE <- results(dds, contrast = c("condition", "3DPE", "Control"))
 res_3DPE <- res_3DPE[order(res_3DPE$padj),]
 
-write.csv(as.data.frame(res_3DPE), file="dqData2019_3DPE.csv")
+write.csv(as.data.frame(res_3DPE), file="data/dqData2019_3DPE.csv")
 ```
 
-##Visualization of the results.
+####Visualization of the results.
 
 ***
 
 Plotting dispersion estimates.
 
-```{r}
+```{r, fig.align = 'center'}
 DESeq2::plotDispEsts(dds,main="Dispersion Plot")
 ```
 
 Raw Data vs normalized counts.
 
-```{r}
+```{r, fig.align = 'center'}
 
 conds <- as.vector(ddata$condition)
 condcols <- brewer.pal(n = length(unique(conds)), name="Dark2") 
@@ -106,7 +104,7 @@ barplot(colSums(counts(dds, normalized=T)), col=condcols[as.factor(conds)], las=
 
 PCA Plot
 
-```{r}
+```{r, fig.align = 'center'}
 
 vsd <- varianceStabilizingTransformation(dds)
 DESeq2::plotPCA(vsd)
@@ -131,7 +129,6 @@ names(keyvals)[which(res_3DPE$log2FoldChange < -1)] <- 'low'
 
 ```
 
-
 Removing duplicates from keyvals.
 
 ```{r}
@@ -147,7 +144,7 @@ tail(keyvals)
 
 The actual plot... 
 
-```{r}
+```{r, fig.align = 'center'}
 
 EnhancedVolcano(res_3DPE,
                 lab = rownames(res_3DPE),
