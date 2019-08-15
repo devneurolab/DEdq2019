@@ -1,4 +1,4 @@
-# Differential Gene Expression of RNA-Seq
+# Differential Gene Expression of RNA-Seq - Intestine Data 2019
 
 Here you are going to be able to find and follow the script for the workflow for differential gene expression of RNA-Seq data. The data used in this script is from samples of:
 
