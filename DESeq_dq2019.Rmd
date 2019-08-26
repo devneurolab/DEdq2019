@@ -12,7 +12,7 @@ knitr::opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
 
 ###Overview
 
-The sea cucumber _Holothuria glaberrima_ has great regenerative capability after internal organs evisceration. In this case, we are analyzing data from intestine regenerative tissue of 1 and 3 days post evisceration (1- and 3DPE) in order to further understand the genes that are involved in the early stages of regeneration.
+The sea cucumber _Holothuria glaberrima_ has great regenerative capability after internal organs evisceration. In this case, we are analyzing data from mesentery regenerative tissue of 1 and 3 days post evisceration (1- and 3DPE) in order to further understand the genes that are involved in the early stages of regeneration.
 
 ***
 
@@ -28,6 +28,7 @@ suppressMessages(library(DESeq2))
 suppressMessages(library(gplots))
 suppressMessages(library(RColorBrewer))
 suppressMessages(library(EnhancedVolcano))
+suppressMessages(library(tidyverse))
 
 ```
 
@@ -67,7 +68,7 @@ counts_table <- counts(dds, normalized=TRUE)
 
 ```
 
-Restults of contrasts between conditions (3DPE vs Normal; 1DPE vs Normal). __Note: Normal tissue is referred to non-regenerated intestine tissue of the sea cucumber.__
+Restults of contrasts between conditions (3DPE vs Normal; 1DPE vs Normal). __Note: Normal tissue is referred to non-regenerated mesentery tissue of the sea cucumber.__
 
 ```{r}
 
@@ -107,7 +108,7 @@ PCA Plot
 ```{r, fig.align = 'center'}
 
 vsd <- varianceStabilizingTransformation(dds)
-DESeq2::plotPCA(vsd)
+DESeq2::plotPCA(vsd)+theme_bw()
 
 ```
 
@@ -150,7 +151,7 @@ EnhancedVolcano(res_3DPE,
                 lab = rownames(res_3DPE),
                 x = 'log2FoldChange',
                 y = 'padj',
-                selectLab = c('TRINITY_DN42961_c0_g1_i1'),
+                selectLab = c('TRINITY_DN57277_c0_g3_i1'),
                 xlim = c(-14,14),
                 xlab = bquote(~Log[2]~ 'fold change'),
                 pCutoff = 10e-2,
@@ -173,5 +174,15 @@ EnhancedVolcano(res_3DPE,
 
 ```
 
+Heatmap of 100 samples...
 
+```{r}
+
+hmcol <- colorRampPalette(brewer.pal(9, "YlOrBr"))(100)
+hits_3DPEvsNORM <- rownames(res_3DPE[(res_3DPE$padj <= 0.001) & (!is.na(res_3DPE$padj)) & (abs(res_3DPE$log2FoldChange) >= 2),])
+hits_3DPEvsNORM2 <- hits_3DPEvsNORM[1:100]
+heatmap.2(assay(vsd[hits_3DPEvsNORM2,]), trace="none", col=hmcol, cexRow = 0.2, cexCol = 0.6, las=2, Colv=TRUE, dendogram="row", key=TRUE, main="3DPE vs Normal")
+
+
+```
 
