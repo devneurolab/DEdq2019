@@ -12,7 +12,7 @@ knitr::opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
 
 ###Overview
 
-The sea cucumber _Holothuria glaberrima_ has great regenerative capability after internal organs evisceration. In this case, we are analyzing data from mesentery regenerative tissue of 1 and 3 days post evisceration (1- and 3DPE) in order to further understand the genes that are involved in the early stages of regeneration.
+The sea cucumber _Holothuria glaberrima_ has great regenerative capability after internal organs evisceration. In this case, we are analyzing data from mesentery regenerative tissue of 1 and 3 days post evisceration (1- and 3-DPE) in order to further understand the genes that are involved in the early stages of regeneration.
 
 ***
 
@@ -114,19 +114,52 @@ DESeq2::plotPCA(vsd)+theme_bw()
 
 Volcano Plot
 
-* The purpose of the code in this section is to assign colors and identification specific to the fold change of each transcript. The base for this will be a fold change of 1, transcripts with fold change of 1.0 or higher will have a royalblue color, those with fold change of -1.0 or lower will have red and those in between will be black.
+* The purpose of the code in this section is to assign colors and identification specific to the fold change of each transcript. The base for this will be a fold change of 2, transcripts with fold change of 1.0 or higher will have a royalblue color, those with fold change of -2.0 or lower will have red and those in between will be black.
+
+Particularly, we are going to label Wnt family genes found in our data. Below we added a list of the specific Wnt name and its assembly ID.
+
+  - Wnt1 = 'TRINITY_DN11077_c0_g1_i1'
+  - Wnt2 = 'TRINITY_DN84401_c0_g1_i1'
+  - Wnt3 = 'TRINITY_DN61112_c0_g1_i5'
+  - Wnt4 = 'TRINITY_DN56808_c0_g1_i1'
+  - Wnt5 = 'TRINITY_DN61053_c0_g1_i1'
+  - Wnt6 = 'TRINITY_DN57277_c0_g3_i1'
+  - Wnt7 = 'TRINITY_DN41286_c0_g1_i1'
+  - Wnt9 = 'TRINITY_DN62364_c3_g3_i2'
+  - Wnt16 = 'TRINITY_DN7204_c0_g1_i1'
+  - WntA = 'TRINITY_DN24635_c0_g1_i1'
+  - WntA2 = 'TRINITY_DN2998_c0_g1_i1'
 
 ```{r}
 
+#Shape Override
+
+#WntGenes <- c('TRINITY_DN11077_c0_g1_i1', 'TRINITY_DN84401_c0_g1_i1',
+#              'TRINITY_DN61112_c0_g1_i5', 'TRINITY_DN56808_c0_g1_i1',
+#              'TRINITY_DN61053_c0_g1_i1', 'TRINITY_DN57277_c0_g3_i1',
+#              'TRINITY_DN41286_c0_g1_i1', 'TRINITY_DN62364_c3_g3_i2',
+#              'TRINITY_DN7204_c0_g1_i1', 'TRINITY_DN24635_c0_g1_i1',
+#              'TRINITY_DN2998_c0_g1_i1')
+
+#keyvals.shape <- rep(3, nrow(res_3DPE))
+
+#names(keyvals.shape) <- rep('All', nrow(res_3DPE))
+
+#keyvals.shape[which(rownames(res_3DPE) %in% WntGenes)] <- 17
+#names(keyvals.shape)[which(rownames(res_3DPE) %in% WntGenes)] <- 'Wnt Genes'
+
+#unique(names(keyvals.shape))
+
+#COLOR OVERRIDE
 keyvals <- rep("black", nrow(res_3DPE))
 
 names(keyvals) <- rep('Mid', nrow(res_3DPE))
 
-keyvals[which(res_3DPE$log2FoldChange > 1.0)] <- 'royalblue'
-names(keyvals)[which(res_3DPE$log2FoldChange > 1.0)] <- 'high'
+keyvals[which(res_3DPE$log2FoldChange > 2.0)] <- 'royalblue'
+names(keyvals)[which(res_3DPE$log2FoldChange > 2.0)] <- 'high'
 
-keyvals[which(res_3DPE$log2FoldChange < -1.0)] <- 'red'
-names(keyvals)[which(res_3DPE$log2FoldChange < -1)] <- 'low'
+keyvals[which(res_3DPE$log2FoldChange < -2.0)] <- 'red'
+names(keyvals)[which(res_3DPE$log2FoldChange < -2.0)] <- 'low'
 
 ```
 
@@ -151,11 +184,16 @@ EnhancedVolcano(res_3DPE,
                 lab = rownames(res_3DPE),
                 x = 'log2FoldChange',
                 y = 'padj',
-                selectLab = c('TRINITY_DN57277_c0_g3_i1'),
+                selectLab = c('TRINITY_DN11077_c0_g1_i1', 'TRINITY_DN84401_c0_g1_i1',
+              'TRINITY_DN61112_c0_g1_i5', 'TRINITY_DN56808_c0_g1_i1',
+              'TRINITY_DN61053_c0_g1_i1', 'TRINITY_DN57277_c0_g3_i1',
+              'TRINITY_DN41286_c0_g1_i1', 'TRINITY_DN62364_c3_g3_i2',
+              'TRINITY_DN7204_c0_g1_i1', 'TRINITY_DN24635_c0_g1_i1',
+              'TRINITY_DN2998_c0_g1_i1'),
                 xlim = c(-14,14),
                 xlab = bquote(~Log[2]~ 'fold change'),
                 pCutoff = 10e-2,
-                FCcutoff = 1.0,
+                FCcutoff = 2.0,
                 transcriptPointSize = 1.0,
                 transcriptLabSize = 3.0,
                 transcriptLabCol = 'black',
@@ -168,21 +206,31 @@ EnhancedVolcano(res_3DPE,
                 legendIconSize = 4.0,
                 drawConnectors = TRUE,
                 widthConnectors = 0.75,
-                colConnectors = 'black',
+                colConnectors = 'grey50',
                 gridlines.major = FALSE,
-                gridlines.minor = FALSE)
+                gridlines.minor = FALSE,
+                border = 'full',
+                borderWidth = 1.0,
+                borderColour = 'black')
 
 ```
 
-Heatmap of 100 samples...
+Heatmap of all Wnt family genes...
 
 ```{r}
 
-hmcol <- colorRampPalette(brewer.pal(9, "YlOrBr"))(100)
-hits_3DPEvsNORM <- rownames(res_3DPE[(res_3DPE$padj <= 0.001) & (!is.na(res_3DPE$padj)) & (abs(res_3DPE$log2FoldChange) >= 2),])
-hits_3DPEvsNORM2 <- hits_3DPEvsNORM[1:100]
-heatmap.2(assay(vsd[hits_3DPEvsNORM2,]), trace="none", col=hmcol, cexRow = 0.2, cexCol = 0.6, las=2, Colv=TRUE, dendogram="row", key=TRUE, main="3DPE vs Normal")
+hmcol <- colorRampPalette(brewer.pal(9, "RdBu"))(100)
 
-
+#hits_3DPEvsNORM <- rownames(res_3DPE[(res_3DPE$padj <= 0.001) & (!is.na(res_3DPE$padj)) & (abs(res_3DPE$log2FoldChange) >= 2),])
+#hits_3DPEvsNORM2 <- hits_3DPEvsNORM[1:100]
+#heatmap.2(assay(vsd[hits_3DPEvsNORM2,]), trace="none", col=hmcol, cexRow = 0.2, cexCol = 0.6, las=2, Colv=TRUE, dendogram="row", key=TRUE, main="3DPE vs Normal")
+heatmap.2(assay(vsd[c('TRINITY_DN24635_c0_g1_i1', 'TRINITY_DN2998_c0_g1_i1',
+                      'TRINITY_DN11077_c0_g1_i1', 'TRINITY_DN84401_c0_g1_i1',
+                      'TRINITY_DN61112_c0_g1_i5', 'TRINITY_DN56808_c0_g1_i1',
+                      'TRINITY_DN61053_c0_g1_i1', 'TRINITY_DN57277_c0_g3_i1',
+                      'TRINITY_DN41286_c0_g1_i1', 'TRINITY_DN62364_c3_g3_i2',
+                      'TRINITY_DN7204_c0_g1_i1', 'TRINITY_DN24635_c0_g1_i1',
+                      'TRINITY_DN2998_c0_g1_i1'),]), trace="none", col=hmcol, cexRow = 0.6, cexCol = 0.6, las=2, 
+          Colv=TRUE, dendogram="row", key=TRUE, main="3DPE vs Normal")
 ```
 
